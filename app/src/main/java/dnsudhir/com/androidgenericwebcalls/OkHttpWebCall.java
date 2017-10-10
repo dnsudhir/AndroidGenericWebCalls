@@ -16,6 +16,9 @@ import okhttp3.Response;
 
 public class OkHttpWebCall extends AsyncTask<Void, Void, String> {
 
+  private boolean dialog;
+  private String title;
+  private String message;
   private ProgressDialog progressDialog;
   private Context context;
   private RequestBody requestBody;
@@ -29,9 +32,25 @@ public class OkHttpWebCall extends AsyncTask<Void, Void, String> {
     this.URL = URL;
   }
 
+
+  public void setProgressDialog(boolean dialog) {
+    this.dialog = dialog;
+    title = "Please Wait";
+    message = "Loading...";
+  }
+
+  public void setProgressDialog(boolean dialog, String title, String message) {
+    this.dialog = dialog;
+    this.title = title;
+    this.message = message;
+  }
+
+
   @Override protected void onPreExecute() {
     super.onPreExecute();
-    progressDialog = ProgressDialog.show(context, "Please Wait", "Loading");
+    if (dialog) {
+      progressDialog = ProgressDialog.show(context, title, message);
+    }
     if (requestBody != null) {
       request = new Request.Builder().url(URL).post(requestBody).build();
     } else {
@@ -57,9 +76,7 @@ public class OkHttpWebCall extends AsyncTask<Void, Void, String> {
 
   @Override protected void onPostExecute(String s) {
     super.onPostExecute(s);
-    if (progressDialog.isShowing()) {
-      progressDialog.dismiss();
-    }
+    if (dialog && progressDialog.isShowing()) progressDialog.dismiss();
     if (s != null && !s.contentEquals("")) {
       onCallComplete.CallCompleted(true, s);
     } else {
@@ -67,7 +84,7 @@ public class OkHttpWebCall extends AsyncTask<Void, Void, String> {
     }
   }
 
-  public void checkSetExecute(OkHttpWebCall webCall, OnCallComplete onCallComplete) {
+  public void setCheckExecute(OkHttpWebCall webCall, OnCallComplete onCallComplete) {
     ConnectivityManager cm =
         (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo netInfo = cm.getActiveNetworkInfo();
