@@ -21,14 +21,19 @@ public class HttpWebCall extends AsyncTask<Void, Void, String> {
   private String URL;
   private ProgressDialog progressDialog;
   private OnCallComplete onCallComplete;
-  private HashMap<String, String> hashMap;
+  private HashMap<String, String> hashMap = null;
 
   public HttpWebCall(Context context, String[] keys, String[] values, String URL) {
     this.context = context;
     this.keys = keys;
     this.values = values;
     this.URL = URL;
-    hashMap = new HashMap<>();
+  }
+
+  public HttpWebCall(Context context, HashMap<String, String> hashMap, String URL) {
+    this.context = context;
+    this.URL = URL;
+    this.hashMap = hashMap;
   }
 
   public void setProgressDialog(boolean dialog) {
@@ -48,9 +53,11 @@ public class HttpWebCall extends AsyncTask<Void, Void, String> {
     if (dialog) {
       progressDialog = ProgressDialog.show(context, title, message);
     }
-
-    for (int i = 0; i < keys.length; i++) {
-      hashMap.put(keys[i], values[i]);
+    if (hashMap == null) {
+      hashMap = new HashMap<>();
+      for (int i = 0; i < keys.length; i++) {
+        hashMap.put(keys[i], values[i]);
+      }
     }
   }
 
@@ -96,6 +103,7 @@ public class HttpWebCall extends AsyncTask<Void, Void, String> {
       builder.show();
     }
   }
+
   interface OnCallComplete {
     void CallCompleted(boolean b, String result);
   }
